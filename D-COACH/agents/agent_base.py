@@ -7,7 +7,7 @@ import os
 class AgentBase:
     def __init__(self, dim_a=3, policy_loc='./racing_car_m2/network',
                  action_upper_limits='1,1', action_lower_limits='-1,-1',
-                 e='1', load_policy=False, **kwargs):
+                 e='1', load_policy=False,**kwargs):
 
         # Initialize variables
         self.high_dim_observation = None
@@ -22,13 +22,15 @@ class AgentBase:
         self.action_upper_limits = str_2_array(action_upper_limits)
         self.action_lower_limits = str_2_array(action_lower_limits)
 
+        print("calling _build_network")
         # Build and load network if requested
-        self._build_network(dim_a, kwargs)
+        self._build_network(dim_a,kwargs)
 
         if load_policy:
             self._load_network()
 
     def _build_network(self, *args):
+        print("base _build_network")
         with tf.variable_scope('base'):
             self.y = None
             self.low_dim_input_shape = None
@@ -48,7 +50,7 @@ class AgentBase:
     def update(self, h, observation):
         self._preprocess_observation(observation)
 
-        action = self.y.eval(session=self.sess, feed_dict={'base/input:0': self.network_input})
+        action = self.y.eval(session=self.sess, feed_dict={'base/input:0': observation})
 
         error = np.array(h * self.e).reshape(1, self.dim_a)
         self.y_label = []
@@ -60,7 +62,7 @@ class AgentBase:
 
         self.y_label = np.array(self.y_label).reshape(1, self.dim_a)
 
-        self.sess.run(self.train_policy, feed_dict={'base/input:0': self.network_input,
+        self.sess.run(self.train_policy, feed_dict={'base/input:0': observation,
                                                   'base/label:0': self.y_label})
 
     def batch_update(self, batch):
@@ -74,8 +76,7 @@ class AgentBase:
 
     def action(self, observation):
         self._preprocess_observation(observation)
-
-        action = self.y.eval(session=self.sess, feed_dict={'base/input:0': self.network_input})
+        action = self.y.eval(session=self.sess, feed_dict={'base/input:0': observation})
         out_action = []
 
         for i in range(self.dim_a):

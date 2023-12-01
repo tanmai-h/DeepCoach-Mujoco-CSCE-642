@@ -8,12 +8,13 @@ from feedback import Feedback
 from agents.selector import agent_selector
 from simulated_teacher.selector import teacher_selector
 from tools.functions import load_config_data
-
+from simulated_teacher.pick_and_fetch import PF
 
 # Read program args
 parser = argparse.ArgumentParser()
 parser.add_argument('--config-file', default='car_racing', help='car_racing, cartpole')
 parser.add_argument('--exp-num', default='-1')
+parser.add_argument("--use-pf", action='store_true', help="Use Pick and Fetch Domain")
 args = parser.parse_args()
 
 config_file = args.config_file
@@ -37,7 +38,7 @@ else:
     version = ''
 
 config = load_config_data('config_files/' + network_folder + '/' + environment + '/' + env_config_file + '.ini')
-
+print('config_files/' + network_folder + '/' + environment + '/' + env_config_file + '.ini')
 config_graph = config['GRAPH']
 config_buffer = config['BUFFER']
 config_general = config['GENERAL']
@@ -69,8 +70,9 @@ if not use_memory_buffer:
 
 output_reward_results_name = '/' + network_folder + '_results_' + exp_num + '_'
 
+pf = None if not args.use_pf else PF()
 # Create environment
-env = gym.make(environment)
+env = gym.make(environment) if not pf else pf
 
 # Create teacher
 if use_simulated_teacher:
@@ -83,8 +85,10 @@ if use_simulated_teacher:
                                error_prob=error_prob,
                                teacher_parameters=config_general['simulated_teacher_parameters'],
                                config_general=config_general,
-                               config_teacher=config_teacher)
-
+                               config_teacher=config_teacher,
+                               pickFetchEnv=pf)
+observation_input_shape = env.observation_space.shape
+print('env.observation_space=', env.observation_space, env)
 # Create agent
 agent = agent_selector(network,
                        version,
@@ -99,21 +103,11 @@ agent = agent_selector(network,
                        action_lower_limits=config_graph['action_lower_limits'],
                        e=config_graph['e'],
                        config_graph=config_graph,
-                       config_general=config_general)
+                       config_general=config_general,observation_input_shape=observation_input_shape)
 
 # Create memory buffer
 buffer = MemoryBuffer(min_size=config_buffer.getint('min_size'),
                       max_size=config_buffer.getint('max_size'))
-
-# Create feedback object
-env.render()
-human_feedback = Feedback(env,
-                          key_type=config_feedback['key_type'],
-                          h_up=config_feedback['h_up'],
-                          h_down=config_feedback['h_down'],
-                          h_right=config_feedback['h_right'],
-                          h_left=config_feedback['h_left'],
-                          h_null=config_feedback['h_null'])
 
 # Create saving directory if it does no exist
 if save_results:
@@ -146,12 +140,12 @@ init_time = time.time()
 for i_episode in range(max_num_of_episodes):
     print('Starting episode number', i_episode)
     agent.new_episode()
-    observation = env.reset()
+    observation = pf.reset()
 
     # Iterate over the episode
     for t in range(int(max_time_steps_episode)):
         if render:
-            env.render()  # Make the environment visible
+            # env.render()  # Make the environment visible
             time.sleep(render_delay)  # Add delay to rendering if necessary
 
         # Map action from state
@@ -168,7 +162,6 @@ for i_episode in range(max_num_of_episodes):
             h = teacher.get_feedback_signal(observation, action, t_counter)
         else:
             h = human_feedback.get_h()
-            # print("Received feedback:", h_counter, "; Total timesteps:", t_counter)
 
         # Update weights
         if train:

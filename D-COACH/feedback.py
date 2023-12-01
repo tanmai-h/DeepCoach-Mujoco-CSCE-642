@@ -1,10 +1,12 @@
-from pyglet.window import key
+from pyvirtualdisplay import Display
 from tools.functions import str_2_array
 
 
 class Feedback:
     def __init__(self, env, key_type='1', h_up='1,0', h_down='-1,0',
                  h_right='0,1', h_left='0,-1', h_null='0,0'):
+        from pyglet.window import key
+
         if key_type == '1':
             env.unwrapped.viewer.window.on_key_press = self.key_press
             env.unwrapped.viewer.window.on_key_release = self.key_release

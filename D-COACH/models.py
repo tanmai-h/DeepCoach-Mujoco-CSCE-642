@@ -3,26 +3,12 @@ import tensorflow as tf
 
 
 def autoencoder(ae_inputs):
-    # encoder
-    net = lays.conv2d(ae_inputs, 16, [3, 3], stride=2, padding='SAME')
-    net = lays.conv2d(net, 8, [3, 3], stride=2, padding='SAME')
-    net = lays.conv2d(net, 4, [3, 3], stride=2, padding='SAME')
-    latent_space = tf.identity(net, name='conv_part')
-
-    # decoder
-    net = lays.conv2d_transpose(latent_space, 8, [3, 3], stride=2, padding='SAME')
-    net = lays.conv2d_transpose(net, 16, [3, 3], stride=2, padding='SAME')
-    net = lays.conv2d_transpose(net, 1, [3, 3], stride=2, padding='SAME', activation_fn=tf.nn.sigmoid)
-    ae_output = tf.identity(net, name='ae_output')
-
-    # calculate the loss and optimize the network
-    loss = tf.reduce_mean(tf.square(ae_output - ae_inputs))
-
-    return loss, latent_space, ae_output
-
+    pass
 
 def fully_connected_layers(x, dim_a, fc_layers_neurons, loss_function_type):
     # Fully connected layer (in tf contrib folder for now)
+    if len(x.shape) == 1:
+        x = tf.reshape(x, shape=(x.shape[0],1))
     fc1 = tf.layers.dense(x, fc_layers_neurons, activation=tf.nn.tanh)
     fc2 = tf.layers.dense(fc1, fc_layers_neurons, activation=tf.nn.tanh)
 

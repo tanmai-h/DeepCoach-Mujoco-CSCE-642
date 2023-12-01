@@ -6,18 +6,15 @@ import time
 
 class TeacherBase:
     def __init__(self, dim_a=3, action_lower_limits='0,0,0', action_upper_limits='1,1,1',
-                 loc='graphs/teacher/CarRacing-v0/network', error_prob=0, teacher_parameters='0.6,0.00001'):
+                 loc='graphs/teacher/CarRacing-v0/network', error_prob=0, teacher_parameters='0.6,0.00001', pickFetchEnv=None):
 
         self.graph = tf.Graph()
         self.sess = tf.Session(graph=self.graph)
+        self.pickFetchEnv=pickFetchEnv
         with self.graph.as_default():
-            self.saver = tf.train.import_meta_graph(loc + '.meta', clear_devices=True)
             self.init = tf.global_variables_initializer()  # initialize the graph
             self.sess = tf.Session()
-            self.saver = tf.train.Saver()
             self.sess.run(self.init)
-            self.saver.restore(self.sess, loc)
-            self.action_out = self.graph.get_operation_by_name('base/action/Tanh').outputs[0]
 
         self.low_dim_observation = None
         self.dim_a = dim_a
@@ -44,7 +41,10 @@ class TeacherBase:
         return np.array(out_action)
 
     def get_feedback_signal(self, observation, agent_output, episode):
-        action = self.action(observation)
+        # action = self.action(observation)
+        action = None
+        if self.pickFetchEnv is not None:
+            action = self.pickFetchEnv.goToGoal()
         diff = action - agent_output
 
         feedback_prob = self.teacher_parameters[0]*np.exp(-self.teacher_parameters[1]*episode)
