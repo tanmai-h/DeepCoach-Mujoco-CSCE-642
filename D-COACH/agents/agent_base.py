@@ -66,11 +66,11 @@ class AgentBase:
                                                   'base/label:0': self.y_label})
 
     def batch_update(self, batch):
-        state_batch = [np.array(pair[0]) for pair in batch]
-        y_label_batch = [np.array(pair[1]) for pair in batch]
-
-        self._batch_update_extra(state_batch, y_label_batch)
-
+        state_batch = np.array([np.array(pair[0]) for pair in batch])
+        y_label_batch = np.array([np.array(pair[1]) for pair in batch])
+    
+        state_batch = np.vstack(state_batch)
+        y_label_batch = np.vstack(y_label_batch)
         self.sess.run(self.train_policy, feed_dict={'base/input:0': state_batch,
                                                   'base/label:0': y_label_batch})
 
@@ -85,8 +85,8 @@ class AgentBase:
 
         return np.array(out_action)
 
-    def last_step(self):
-        return [np.squeeze(self.network_input, axis=0), self.y_label.reshape(self.dim_a)]
+    def last_step(self, observation):
+        return [observation, self.y_label.reshape(self.dim_a)]
 
     def save_params(self):
         if not os.path.exists(self.policy_loc):

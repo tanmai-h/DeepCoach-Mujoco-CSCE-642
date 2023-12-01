@@ -149,7 +149,7 @@ for i_episode in range(max_num_of_episodes):
             time.sleep(render_delay)  # Add delay to rendering if necessary
 
         # Map action from state
-        action = agent.action(observation)
+        action = agent.action(np.expand_dims(observation, axis=0))
 
         # Act
         observation, reward, done, info = env.step(action)
@@ -166,14 +166,15 @@ for i_episode in range(max_num_of_episodes):
         # Update weights
         if train:
             if np.any(h):  # if any element is not 0
-                agent.update(h, observation)
+                agent.update(h, np.expand_dims(observation, axis=0))
                 if not use_simulated_teacher:
                     print("feedback", h)
                 h_counter += 1
                 # Add state action-label pair to memory buffer
                 if use_memory_buffer:
-                    if agent.last_step() is not None:
-                        buffer.add(agent.last_step())
+                    last_step = agent.last_step(observation)
+                    if last_step is not None:
+                        buffer.add(last_step)
 
                     # Train sampling from buffer
                     if buffer.initialized():
@@ -198,7 +199,7 @@ for i_episode in range(max_num_of_episodes):
             print('\nFPS:', fps, '\n')
 
         # End of episode
-        if done or human_feedback.ask_for_done():
+        if done:
             if evaluate:
                 total_r += r
                 print('Episode Reward:', '%.3f' % r)
