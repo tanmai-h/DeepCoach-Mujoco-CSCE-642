@@ -99,6 +99,7 @@ class Agent(AgentBase):
         self._refresh_image_plots(t)
 
     def new_episode(self):
-        print('\nTraining autoencoder:', self.ae_training)
-        print('Last autoencoder mean loss:', self.mean_ae_loss, '\n')
+        # print('\nTraining autoencoder:', self.ae_training)
+        # print('Last autoencoder mean loss:', self.mean_ae_loss, '\n')
+        pass
 

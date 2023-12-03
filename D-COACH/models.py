@@ -1,4 +1,3 @@
-import tensorflow.contrib.layers as lays
 import tensorflow as tf
 
 
@@ -9,8 +8,8 @@ def fully_connected_layers(x, dim_a, fc_layers_neurons, loss_function_type):
     # Fully connected layer (in tf contrib folder for now)
     if len(x.shape) == 1:
         x = tf.reshape(x, shape=(x.shape[0],1))
-    fc1 = tf.layers.dense(x, fc_layers_neurons, activation=tf.nn.tanh)
-    fc2 = tf.layers.dense(fc1, fc_layers_neurons, activation=tf.nn.tanh)
+    fc1 = tf.layers.dense(x, fc_layers_neurons, activation=tf.nn.relu)
+    fc2 = tf.layers.dense(fc1, fc_layers_neurons, activation=tf.nn.relu)
 
     # Output layer, class prediction
     y = tf.layers.dense(fc2, dim_a, activation=tf.nn.tanh, name='action')
