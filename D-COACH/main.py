@@ -156,7 +156,7 @@ for i_episode in range(max_num_of_episodes):
     # Iterate over the episode
     for t in range(int(max_time_steps_episode)):
         if render:
-            # env.render()  # Make the environment visible
+            env.render()  # Make the environment visible
             time.sleep(render_delay)  # Add delay to rendering if necessary
 
         # Map action from state
