@@ -9,12 +9,18 @@ from agents.selector import agent_selector
 from simulated_teacher.selector import teacher_selector
 from tools.functions import load_config_data
 from simulated_teacher.pick_and_fetch import PF
+from simulated_teacher.fetch_push import FP
+from simulated_teacher.fetch_and_slide import FS
 
 # Read program args
 parser = argparse.ArgumentParser()
-parser.add_argument('--config-file', default='car_racing', help='car_racing, cartpole')
+parser.add_argument('--config-file', default='pick_and_fetch', help='We use the same configs for all 3 domains')
 parser.add_argument('--exp-num', default='-1')
+
 parser.add_argument("--use-pf", action='store_true', help="Use Pick and Fetch Domain")
+parser.add_argument("--use-fp", action='store_true', help="Use Fetch and Push Domain")
+parser.add_argument("--use-fs", action='store_true', help="Use Fetch and Slide Domain")
+
 args = parser.parse_args()
 
 config_file = args.config_file
@@ -68,9 +74,13 @@ render_delay = float(config_general['render_delay'])
 if not use_memory_buffer:
     eval_save_folder += '_no_buffer'
 
-output_reward_results_name = '/' + network_folder + '_results_' + exp_num + '_'
+output_reward_results_name = '/Enhanced_results_' + exp_num + '_'
 
 pf = None if not args.use_pf else PF()
+if args.use_fp:
+    pf = FP()
+elif args.use_fs:
+    pf = FS()
 # Create environment
 env = gym.make(environment) if not pf else pf
 
@@ -137,6 +147,7 @@ if count_down:
 
 # Iterate over the maximum number of episodes
 init_time = time.time()
+print("Max num read from the config", max_num_of_episodes)
 for i_episode in range(max_num_of_episodes):
     print('Starting episode number', i_episode)
     agent.new_episode()
@@ -160,8 +171,8 @@ for i_episode in range(max_num_of_episodes):
         # Get feedback signal
         if use_simulated_teacher:
             h = teacher.get_feedback_signal(observation, action, t_counter)
-        else:
-            h = human_feedback.get_h()
+        # else:
+        #     h = human_feedback.get_h()
 
         # Update weights
         if train:

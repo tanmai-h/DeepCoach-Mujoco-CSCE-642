@@ -49,13 +49,14 @@ class TeacherBase:
 
         feedback_prob = self.teacher_parameters[0]*np.exp(-self.teacher_parameters[1]*episode)
 
-        h = np.array([0, 0])
-        if np.random.uniform() < feedback_prob:
-            h = np.sign(diff)
+        # h = np.array([0, 0])
+        h = np.sign(diff)
+        # if np.random.uniform() < feedback_prob:
+        #     h = np.sign(diff)
 
-            # Give erroneous feedback
-            for i in range(self.dim_a):
-                if np.random.uniform() < self.error_prob:
-                    h[i] = h[i] * -1
+        #     # Give erroneous feedback
+        #     for i in range(self.dim_a):
+        #         if np.random.uniform() < self.error_prob:
+        #             h[i] = h[i] * -1
 
         return h
