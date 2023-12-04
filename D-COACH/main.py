@@ -28,6 +28,7 @@ exp_num = args.exp_num
 
 # Load common parameters from config file
 config = load_config_data('config_files/' + config_file + '.ini')
+# print('config_files/' + config_file + '.ini')
 config_exp_setup = config['EXP_SETUP']
 
 environment = config_exp_setup['environment']
@@ -74,7 +75,7 @@ render_delay = float(config_general['render_delay'])
 if not use_memory_buffer:
     eval_save_folder += '_no_buffer'
 
-output_reward_results_name = '/Enhanced_results_' + exp_num + '_'
+output_reward_results_name = '/Enhanced_results_' + args.config_file + exp_num + '_'
 
 pf = None if not args.use_pf else PF()
 if args.use_fp:
