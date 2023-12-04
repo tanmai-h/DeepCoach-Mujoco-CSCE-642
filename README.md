@@ -58,7 +58,6 @@ Trained models are stored in the graph directory, and training results like rewa
 The default configuration files are unde the config_file directory and in the HD folder under the same directory Enhanced configuration files.
 
 The trained models are stored under the graphs directory, to run a trained model: 
- 1. Locate the .ini config file for the domain under the config_file directory
- 2. Update the 'load_model' config to True
- 3. Update the 'train' config to False
- 4. Update the 'render' config to True
+ 1. Locate the <environment>.ini config file for the domain under the config_files directory
+ 2. Update the 'load_model' and 'render' configs to True
+ 3. Set the 'train', 'use_simulated_teacher' and 'save_graph' configs to False
