@@ -222,7 +222,7 @@ for i_episode in range(max_num_of_episodes):
                     total_feedback.append(h_counter)
                     total_time_steps.append(t_counter)
                     np.save(eval_save_path + eval_save_folder + output_reward_results_name + 'reward', total_reward)
-                    np.save(eval_save_path + eval_save_folder + output_reward_results_name + 'feedback', total_feedback)
+                    # np.save(eval_save_path + eval_save_folder + output_reward_results_name + 'feedback', total_feedback)
                     np.save(eval_save_path + eval_save_folder + output_reward_results_name + 'time', total_time_steps)
 
             if save_graph:
